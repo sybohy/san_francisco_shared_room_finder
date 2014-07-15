@@ -1,0 +1,4 @@
+*.log
+*.lock
+*.db
+gmail_conf.yml

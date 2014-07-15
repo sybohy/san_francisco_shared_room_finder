@@ -20,6 +20,16 @@ A gmail account and ideally, a raspberry pi or something to run it on continuous
 Your max price is an int. Example: `ruby shared_room_harvester.rb 1000`
 
 
+### Cron Time
+
+This script is a perfect use case for a raspberry pi. 
+
+First setup your rvm enviroment inside of RVM: `rvm cron setup`
+
+Then setup a cron for it to run every minute:
+
+`* * * * * ruby path_to_room-finder/shared_room_harvester.rb`
+
 ### Contributing
 
-Issues + Pull Request. 
+Issues + Pull Request.

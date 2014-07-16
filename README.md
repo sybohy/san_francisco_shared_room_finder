@@ -10,7 +10,7 @@ A gmail account and ideally, a raspberry pi or something to run it on continuous
 ### Installing
 
 1. Run `bundle install`
-2. Under templates, write your own custom message. Remember to mention some interesting facts about yourself to ensure you get a reply.
+2. Under templates, write your own custom message. Remember to mention some interesting facts about yourself to ensure you get a reply, like interest, hobbies, and work. 
 3. Create a gmail_conf.yml file and enter your email/password as modeled in the gmail_conf.yml.example.
 
 ### Running

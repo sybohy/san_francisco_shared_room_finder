@@ -5,7 +5,7 @@ require 'gmail'
 require 'active_record'
 require 'rubygems'
 require 'mechanize'
-
+require 'uri'
 
 gmail_credentials = YAML.load(File.read("#{File.dirname(File.dirname(__FILE__))}/config/gmail_conf.yml"))
 USERNAME = gmail_credentials["username"]
@@ -46,8 +46,8 @@ def parse_email(contact_url)
 
     begin
         xml_elems = Nokogiri::HTML(open(contact_url))
-        if xml_elems.css('body > div > ul:nth-child(4) > li > a').first
-            return xml_elems.css('body > div > ul:nth-child(4) > li > a').first.text
+        if xml_elems.css('a').select {|link| link['href'].include?("mailto")}.count > 0
+            return URI.unescape xml_elems.css('a').select {|link| link['href'].include?("mailto")}.first['href'].split('?').first.gsub('mailto:', '')
         else
             return "no email"
         end
@@ -72,11 +72,11 @@ end
 
 
 def main(max_price)
-  url = "http://sfbay.craigslist.org/search/sfc/roo?sale_date=-&maxAsk=#{max_price}"
+  url = "http://sfbay.craigslist.org/search/sfc/roo?nh=3&nh=4&nh=6&nh=9&nh=12&nh=18&nh=21&nh=1&nh=29&minAsk=1000&maxAsk=#{max_price}"
 
   # Create a Mechanize agent
   a = Mechanize.new { |agent|
-  agent.user_agent_alias = 'Mac Safari'
+    agent.user_agent_alias = 'Mac Safari'
   }
 
 
@@ -91,22 +91,26 @@ def main(max_price)
       begin
 
         # Create an Room check if you've already contacted it using ActiveRecord create
+        #
         href = "http://sfbay.craigslist.org#{post_link}"
         room = Room.new(:href => href)
 
         if room.valid?
           contact_url = construct_contact_url(room.href)
           @email_mailto = parse_email(contact_url)
+          @logger.info("Emailing using the following email: #{@email_mailto}")
 
           #Build the text template
           text_template = "email_room_template_1.txt.erb"
+          @first_name = "Kristen"
           @logger.info("Rendering ERB text template for #{text_template}")
           text_renderer = ERB.new(File.read("#{File.dirname(File.dirname(__FILE__))}/templates/#{text_template}"))
           @text_content = text_renderer.result(binding)
 
 
-          @logger.info("Login in GMAIL as #{USERNAME}")
+          @logger.info("Login in GMAIL as #{USERNAME} and password = #{PASSWORD}")
           gmail = Gmail.connect(USERNAME, PASSWORD)
+          @logger.info("#{gmail}")
           if gmail.logged_in?
 
             # Began Composing the email
